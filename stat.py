@@ -85,39 +85,39 @@ class Stats():
         return None
 
 
-    def get_sample(dBuild, i):
+    def get_sample(self, i):
         """
         Extracts sample data from dictionary accordingly with indice 'i'.
 
             - 'dBuild' has the form {key:[value1, value2, ..., valueN]}
             - the parameter 'i' indicates the position of a value on each
-            key list, varying from 0 to N
+            key list, varying from 0 to N-1
 
         Returns a list of floats.
         """
         sample = []
 
-        for s in dBuild.values():
+        for s in self.dBuild.values():
             sample.append( s[i] )
 
         return sample
 
 
-    def limits(sample):
+    def limits(self, sample):
         """
         Returns a tuple with minimum and maximum of a sample.
         """
         return  min(sample), max(sample)
 
 
-    def centrals(sample):
+    def centrals(self, sample):
         """
         Returns central values of a sample, i.e. mean(average), median and mode.
         """
         return st.mean(sample), st.median(sample), st.mode(sample)
 
 
-    def spreads(sample, mean):
+    def spreads(self, sample, mean):
         """
         Returns distribution values of a sample, i.e. variance and deviation.
         """
@@ -130,13 +130,14 @@ class Stats():
         
         Returns nothing.
         """        
-        for k in range( 0, len(self.dBuild.values()[0]) ):
+        for k in range( 0, len( list( self.dBuild.values() )[0] ) ):
 
-            sample = get_sample( self.dBuild , k )
-            centValues = centrals(sample)
-            sprValues = spreads(sample, centValues[0])
-            limtValues = limits(sample)
+            sample = self.get_sample(k)
+            centValues = self.centrals(sample)
+            sprValues = self.spreads(sample, centValues[0])
+            limtValues = self.limits(sample)
             statValues = centValues + sprValues + limtValues
+
             print( k, "\n\taverage: %5.3f,\n\tmedian: %5.3f,\n\tmode: %5.3f,\n\tvariance: %5.3f,\n\tdeviation: %5.3f,\n\tlimits = ( %5.3f , %5.3f )\n" % statValues )
         #    print( k, "-->", "average: {}, median: {}, and mode: {}" .format(centrals(y,lib[k])) ) % best way to print out, but not working... :(
         
@@ -145,7 +146,7 @@ class Stats():
         
 #----------------------------------------------------------------
 
-# extract vauable data
+# extract valuable data
 y = goodData("edific.csv")
 
 analize = Stats(y)
