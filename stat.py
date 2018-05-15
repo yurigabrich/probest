@@ -6,19 +6,51 @@ def goodData(filename):
         """
         Analizes the input CSV file accordingly with correct values and counts null and error values.
         
-        The first loop iteration shows all titles on header and waits for user answer about which
+        The first iteration shows all titles on header and waits for user answer about which
         title must be used for a dictionary key and which ones for respective values.
         
         Returns a dictionary on the form {key:[values]}.
         """
         dBuild = {}
+        
+        # User interface to define which data must be handled with
+        with open(filename, 'r', newline='') as csvfile:
+            rows = csv.DictReader(csvfile, delimiter=',')
+            header = rows.fieldnames
+
+        print(" The current file has the following names as headers:")
+        for k in range(0, len(header)):
+            print("\t({}) {}".format(k, header[k]))
+        
+        try:
+            key = int(input("\n Type the value that you'd like to use as key: "))
+        except ValueError:
+            print ("Check if you have typed only numbers.")
+
+      
+        values = []
+        while values == []:
+            val = input("\n Type the values that you'd like to correlate with a key separated by commas: ")
+            
+            for v in val:
+                try:
+                    saV = int(v)
+                    if (saV != key) and (saV not in values) and (saV < len(header)-1):
+                        values.append(saV)
+                    if saV > len(header)-1 :
+                        print(v, "must be lesser than or equal to", len(header)-1)
+                except ValueError:
+                    pass
+
+        print(values,"\n")
+        
         countNull = {'nC':[], 'nH':[], 'nA':[], 'n3':[]}
         highIssues = {'neg':[], 'pos':[], 'eq':[]}
-        count_Error = 0
+        count_Errors = 0
 
         with open(filename, 'r') as csvfile:
             ROWS = csv.reader(csvfile, delimiter=',')
-            for r in ROWS:
+            for r in 0:#ROWS:
 
                 # checking blank data
                 if r[5] == '':
@@ -54,7 +86,7 @@ def goodData(filename):
                     # values that we don't care
                     # if r[5], r[4] or r[10] is the header
                     # if r[5] is empty
-                    count_Error += 1
+                    count_Errors += 1
                     pass
 
         if True: # fast trick to pass print
@@ -62,7 +94,7 @@ def goodData(filename):
             for k in countNull: print("\t" + str(k) + ":", len(countNull[k]))
             print('# of height "blank" values:')
             for k in highIssues: print("\t" + str(k) + ":", len(highIssues[k]))
-            print("# of errors:", count_Error, "\nsize of dataset:", len(dBuild))
+            print("# of errors:", count_Errors, "\nsize of dataset:", len(dBuild))
 
             x = 5
             for k in dBuild:
@@ -149,5 +181,5 @@ class Stats():
 # extract valuable data
 y = goodData("edific.csv")
 
-analize = Stats(y)
-analize.summary()
+#analize = Stats(y)
+#analize.summary()
