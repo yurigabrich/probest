@@ -4,7 +4,12 @@ import statistics as st
 
 def goodData(filename):
         """
-        Returns a dictionary of building codes as keys with height and area as values.
+        Analizes the input CSV file accordingly with correct values and counts null and error values.
+        
+        The first loop iteration shows all titles on header and waits for user answer about which
+        title must be used for a dictionary key and which ones for respective values.
+        
+        Returns a dictionary on the form {key:[values]}.
         """
         dBuild = {}
         countNull = {'nC':[], 'nH':[], 'nA':[], 'n3':[]}
@@ -68,58 +73,80 @@ def goodData(filename):
         return dBuild
 
 
-def get_sample(dBuild, i):
-    """
-    extract sample data from dictionary accordingly with indice i
-    """
-    samp = []
+class Stats():
+    def __init__(self, dBuild):
+        """
+        Initializes the class Statistics.
 
-    for s in dBuild.values():
-        samp.append( s[i] )
+        Returns nothing.
+        """
+        self.dBuild = dBuild
 
-    return samp
-    
-
-def lims(sample):
-    """
-    min and max of a sample
-    """
-    return  min(sample), max(sample)
+        return None
 
 
-def centrals(sample):
-    """
-    mean (average), median and mode
-    """
-    return st.mean(sample), st.median(sample), st.mode(sample)
+    def get_sample(dBuild, i):
+        """
+        Extracts sample data from dictionary accordingly with indice 'i'.
+
+            - 'dBuild' has the form {key:[value1, value2, ..., valueN]}
+            - the parameter 'i' indicates the position of a value on each
+            key list, varying from 0 to N
+
+        Returns a list of floats.
+        """
+        sample = []
+
+        for s in dBuild.values():
+            sample.append( s[i] )
+
+        return sample
 
 
-def spreads(sample, mean):
-    """
-    variance and deviation
-    """
-    return st.variance(sample, mean), st.stdev(sample, mean)
-    
+    def limits(sample):
+        """
+        Returns a tuple with minimum and maximum of a sample.
+        """
+        return  min(sample), max(sample)
 
+
+    def centrals(sample):
+        """
+        Returns central values of a sample, i.e. mean(average), median and mode.
+        """
+        return st.mean(sample), st.median(sample), st.mode(sample)
+
+
+    def spreads(sample, mean):
+        """
+        Returns distribution values of a sample, i.e. variance and deviation.
+        """
+        return st.variance(sample, mean), st.stdev(sample, mean)
+
+
+    def summary(self):
+        """
+        Shows a summary of the corresponding file.
+        
+        Returns nothing.
+        """        
+        for k in range( 0, len(self.dBuild.values()[0]) ):
+
+            sample = get_sample( self.dBuild , k )
+            centValues = centrals(sample)
+            sprValues = spreads(sample, centValues[0])
+            limtValues = limits(sample)
+            statValues = centValues + sprValues + limtValues
+            print( k, "\n\taverage: %5.3f,\n\tmedian: %5.3f,\n\tmode: %5.3f,\n\tvariance: %5.3f,\n\tdeviation: %5.3f,\n\tlimits = ( %5.3f , %5.3f )\n" % statValues )
+        #    print( k, "-->", "average: {}, median: {}, and mode: {}" .format(centrals(y,lib[k])) ) % best way to print out, but not working... :(
+        
+        return None
+        
+        
 #----------------------------------------------------------------
 
 # extract vauable data
 y = goodData("edific.csv")
 
-
-lib = []#{"HEIGHT":0, "AREA":1}
-for k in lib:
-
-    sample = get_sample(y,lib[k])
-    
-    # analyzing the need of stratification
-    centValues = centrals(sample)
-    sprValues = spreads(sample, centValues[0])
-
-    # defining limits
-    limtValues = lims(sample)
-
-    statValues = centValues + sprValues + limtValues
-    print( k, "\n\taverage: %5.3f,\n\tmedian: %5.3f,\n\tmode: %5.3f,\n\tvariance: %5.3f,\n\tdeviation: %5.3f,\n\tlimits = ( %5.3f , %5.3f )\n" % statValues )
-
-#    print( k, "-->", "average: {}, median: {}, and mode: {}" .format(centrals(y,lib[k])) ) % best way to print out, but not working... :(
+analize = Stats(y)
+analize.summary()
