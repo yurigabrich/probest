@@ -2,6 +2,85 @@ import csv
 import statistics as st
 
 
+def checkIn(string):
+        """
+        A set of tests to evaluate a string caracteristics.
+        It can be an empty string (''), an alphabetical ('aBc'),
+        a number as string ('237'), a punctuation and symbols
+        (! ';.) and so on...
+
+        We defined here just those that we have encountered on
+        our currently CSV file. The excepts of them are under
+        'non-know' definition.
+
+        Returns the value of a string ('int' or 'str') and a
+        message indicating what the user must do to continue.
+        """
+        try:
+            s = int(string)
+            sentence = "Thanks! Let's keep moving on."
+
+        except ValueError:
+            s = string
+            if s == '':
+                sentence = "Ops! It looks like you've got an empty value. Choose another..."
+            if s.isalnum():
+                sentence = "Ops! An alphabetical string found. Choose another..."
+
+#            "Check if you have typed only numbers."
+        return s, sentence
+
+
+def urChoice(filename):
+        """
+        User interface to define which data must be handled with.
+
+        Returns numbers that represent fieldnames of CSV header, on
+        the form:
+                - an integer 'key' to be used on dictionary construct
+                - a list of integers which represent the 'values'
+                    attributed to a 'key'
+        """
+        # get header data
+        with open(filename, 'r', newline='') as csvfile:
+            rows = csv.DictReader(csvfile, delimiter=',')
+            header = rows.fieldnames
+
+        # show header names with identifiable numbers
+        print(" The current file has the following names as headers:")
+        for k in range(0, len(header)):
+            print("\t({}) {}".format(k, header[k]))
+        
+        # ask for user input for 'key' element and wait a valid answer
+        key, sentence = '', '...'
+        while type(key) == str:
+            key, print(sentence) = checkIn( input("\n Type the value that you'd like to use as key: ") )
+
+        # ask for user input for 'values' element and wait a valid answer
+        values = []
+        while values == []:
+            val = input("\n Type the values that you'd like to correlate with a key separated by commas: ")
+            
+            for v in val:
+                saV, sentence = checkIn(v)
+
+                if type(saV) == int:
+
+                    if (saV != key) and (saV not in values) and (saV < len(header)-1):
+                        values.append(saV)
+                        print(sentence)
+                    elif saV > len(header)-1 :
+                        print(str(v), "must be lesser than or equal to", str(len(header)-1))
+                        print("Choose other number.")
+
+                else:
+                    print(sentence)
+
+        print(values,"\n")
+
+        return key, values
+
+
 def goodData(filename):
         """
         Analizes the input CSV file accordingly with correct values and counts null and error values.
@@ -11,39 +90,9 @@ def goodData(filename):
         
         Returns a dictionary on the form {key:[values]}.
         """
+        key, values = urChoice(filename)
+
         dBuild = {}
-        
-        # User interface to define which data must be handled with
-        with open(filename, 'r', newline='') as csvfile:
-            rows = csv.DictReader(csvfile, delimiter=',')
-            header = rows.fieldnames
-
-        print(" The current file has the following names as headers:")
-        for k in range(0, len(header)):
-            print("\t({}) {}".format(k, header[k]))
-        
-        try:
-            key = int(input("\n Type the value that you'd like to use as key: "))
-        except ValueError:
-            print ("Check if you have typed only numbers.")
-
-      
-        values = []
-        while values == []:
-            val = input("\n Type the values that you'd like to correlate with a key separated by commas: ")
-            
-            for v in val:
-                try:
-                    saV = int(v)
-                    if (saV != key) and (saV not in values) and (saV < len(header)-1):
-                        values.append(saV)
-                    if saV > len(header)-1 :
-                        print(v, "must be lesser than or equal to", len(header)-1)
-                except ValueError:
-                    pass
-
-        print(values,"\n")
-        
         countNull = {'nC':[], 'nH':[], 'nA':[], 'n3':[]}
         highIssues = {'neg':[], 'pos':[], 'eq':[]}
         count_Errors = 0
