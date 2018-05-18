@@ -3,7 +3,7 @@ import string as stri
 import statistics as st
 
 
-def checkIn(string, exception="*"):
+def checkIn(string):
     """
     A set of tests to evaluate a string characteristics.
     It can be an empty string (''), an alphabetical one
@@ -27,10 +27,7 @@ def checkIn(string, exception="*"):
         elif s.isalnum():
             sent1 = "Oops! An alphabetical string found."
         elif s in stri.punctuation:
-            if exception == ",":
-                sent1 = "It was expected."
-            else:
-                sent1 = "Oops! Punctuations and symbols are not allowed."
+            sent1 = "Oops! Punctuations and symbols are not allowed."
         else:
             sent1 = "Uh-oh! We could not understand what you've typed."
 
@@ -59,7 +56,7 @@ def urChoice(filename):
     for k in range(0, len(header)):
         print("\t({}) {}".format(k, header[k]))
     
-    # ask for user input for 'key' element and wait a valid answer
+    # ask user for input 'key' element and wait a valid answer
     key, sentence = '', '...'
 
     while type(key) == str:
@@ -75,31 +72,56 @@ def urChoice(filename):
         else:
             print(sentence)
 
-    # ask for user input for 'values' element and wait a valid answer
+    # ask user for input 'values' element and wait a valid answer
     values = []
+    filterIn = []
     savNums = []
-    savSents = []
-    while values == []:
-        val = input("\n Type the 'values' that you'd like to correlate with a 'key' separated by commas: ")
-        
-        for v in val:
-            saV, sentence = checkIn(v,",")
+    savGoods = []
+    savBads = []
 
+    while values == []:
+        val = input("\n Type the value(s) that you'd like to correlate with a 'key' separated by commas: ")
+        
+        # identifing each possible number (removing ',')
+        filterIn = []
+
+        start = 0
+        end = val.index(",")
+        temp = val[ 0 : end ]
+
+        commas = val.count(",")
+        count = -1
+
+        while count < commas:
+            filterIn.append( temp )
+            
+            start = end+1
+            if "," in val[ start : ]:
+                end = start + val[ start : ].index(",")
+                temp = val[ start : end ]
+            else:
+                # last loop is coming
+                temp = val[ start : ]
+                
+            count += 1
+
+
+        # check if each statement is a valid one
+        for v in filterIn:
+            saV, sentence = checkIn(v)
             if type(saV) == int:
                 if (saV != key) and (saV not in values) and (saV in range(0, len(header))):
                     values.append(saV)
-#                    print("--------------(1)--------------")
-                    savNums.append(sentence)
+                    savGoods.append(sentence)
                 else:
-                    savSents.append("\tThe value "+str(v)+" has already been used before or it's outside the scope of valid headers. Please, choose another number.")
-#                    print("--------------(2)--------------")
+                    savBads.append("\tThe value "+str(v)+" has already been used before or it's outside the scope of valid headers. Please, choose another number.")
             else:
-                savSents.append(sentence)
-#                print("--------------(3)--------------")
+                savBads.append(sentence)
 
-    print(sorted(values),"\n")
+    print(savGoods[0])
 
-    return key, values
+
+    return key, sorted(values)
 
 
 def goodData(filename):
