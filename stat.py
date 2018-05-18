@@ -1,33 +1,38 @@
 import csv
+import string as stri
 import statistics as st
 
 
 def checkIn(string):
         """
         A set of tests to evaluate a string caracteristics.
-        It can be an empty string (''), an alphabetical ('aBc'),
-        a number as string ('237'), a punctuation and symbols
-        (! ';.) and so on...
+        It can be an empty string (''), an alphabetical one
+        ('aBc'), a number as string ('237'), punctuation and
+        symbols (! ';.) and so on...
 
-        We defined here just those that we have encountered on
-        our currently CSV file. The excepts of them are under
-        'non-know' definition.
+        The excepts of them are under 'unknown' definition.
 
         Returns the value of a string ('int' or 'str') and a
         message indicating what the user must do to continue.
         """
         try:
             s = int(string)
-            sentence = "Thanks! Let's keep moving on."
+            sentence = "\tThanks! Let's keep moving on."
 
         except ValueError:
             s = string
-            if s == '':
-                sentence = "Ops! It looks like you've got an empty value. Choose another..."
-            if s.isalnum():
-                sentence = "Ops! An alphabetical string found. Choose another..."
 
-#            "Check if you have typed only numbers."
+            if s == '':
+                sent1 = "Oops! It looks like you've got an empty value."
+            elif s.isalnum():
+                sent1 = "Oops! An alphabetical string found."
+            elif s in stri.punctuation:
+                sent1 = "Oops! Punctuations and symbols are not allowed."
+            else:
+                sent1 = "Uh-oh! We could not understand what you've typed."
+
+            sentence = "\t" + sent1 + " Please, consider only numbers."
+
         return s, sentence
 
 
@@ -53,13 +58,24 @@ def urChoice(filename):
         
         # ask for user input for 'key' element and wait a valid answer
         key, sentence = '', '...'
+
         while type(key) == str:
-            key, print(sentence) = checkIn( input("\n Type the value that you'd like to use as key: ") )
+            k, sentence = checkIn( input("\n Type the value that you'd like to use as key: ") )
+            
+            if type(k) == int:
+                if k < len(header):
+                    key = k
+                    print(sentence)
+                else:
+                    print("\tThe value", str(k), "is greater than the size of valid headers.")
+                    print("\tPlease, choose other number.")
+            else:
+                print(sentence)
 
         # ask for user input for 'values' element and wait a valid answer
         values = []
         while values == []:
-            val = input("\n Type the values that you'd like to correlate with a key separated by commas: ")
+            val = input("\n Type the 'values' that you'd like to correlate with a 'key' separated by commas: ")
             
             for v in val:
                 saV, sentence = checkIn(v)
@@ -69,9 +85,9 @@ def urChoice(filename):
                     if (saV != key) and (saV not in values) and (saV < len(header)-1):
                         values.append(saV)
                         print(sentence)
-                    elif saV > len(header)-1 :
-                        print(str(v), "must be lesser than or equal to", str(len(header)-1))
-                        print("Choose other number.")
+                    else:
+                        print("\tThe value", str(v), "has already been used before or it's greater than the size of valid headers (" + str(len(header)-1) + ")")
+                        print("\tPlease, choose other number.")
 
                 else:
                     print(sentence)
