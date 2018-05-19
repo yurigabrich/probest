@@ -119,9 +119,12 @@ def urChoice(filename):
                 savBads.append(sentence)
 
     print(savGoods[0])
+    
+    var = [header[key]]
+    for v in values:
+        var.append(header[v])
 
-
-    return key, sorted(values)
+    return var #key, sorted(values)
 
 
 def goodData(filename):
@@ -133,26 +136,38 @@ def goodData(filename):
     
     Returns a dictionary on the form {key:[values]}.
     """
-    key, values = urChoice(filename)
+    var = urChoice(filename) # strings... var[0] = key
 
     dBuild = {}
-    countNull = {'nC':[], 'nH':[], 'nA':[], 'n3':[]}
+    summary = {}
     highIssues = {'neg':[], 'pos':[], 'eq':[]}
     count_Errors = 0
 
+    # build dictionaries with keys...
     with open(filename, 'r') as csvfile:
-        ROWS = csv.reader(csvfile, delimiter=',')
-        for r in 0:#ROWS:
+        ROWS = csv.DictReader(csvfile, delimiter=',')
 
-            # checking blank data
-            if r[5] == '':
-                countNull['nC'].append(r[0])
-            if r[4] == '':
-                countNull['nH'].append(r[0])
-            if r[10] == '':
-                countNull['nA'].append(r[0])
-            if (r[4] == '') and (r[5] == '') and (r[10] == ''):
-                countNull['n3'].append(r[0])
+        for column in ROWS:
+            
+            for v in var:
+                # counts number of null values for each variable considered
+                summary[v] = { "null values" : column[v].count('') }
+                
+                # counts the number of rows in each column (should be the same for all)
+                summary[v]["size"] = column[v]
+
+            #dBuild[ column[key] ] = []
+
+
+    print(summary)
+    
+    stopError
+    with open(filename, 'r') as csvfile:
+        #ROWS = csv.reader(csvfile, delimiter=',')
+        ROWS = csv.DictReader(csvfile, delimiter=',')
+        #header = ROWS.fieldnames
+
+        for r in 0:#ROWS[1:]: # skip header row
 
             try:
                 key = int(r[5])
